@@ -58,20 +58,14 @@ def admin():
     return render_template("admin.html", pedidos=pedidos, json=json)
 
 
-@app.route("/generar_qr")
+@app.route("https://pedidos-qr-flask.onrender.com")
 def generar_qr():
-    """
-    Genera un QR dinámico en memoria con la URL pública
-    de tu app en Render y lo devuelve sin guardar en disco.
-    """
-    url = os.environ.get("PUBLIC_URL", "https://pedidos-qr-flask.onrender.com")
-    
-    qr_img = qrcode.make(url)
-    buffer = io.BytesIO()
-    qr_img.save(buffer, format="PNG")
-    buffer.seek(0)
+    url = "https://pedidos-qr-flask.onrender.com"   # URL de Render
+    img = qrcode.make(url)
+    ruta = "static/qr_menu.png"
+    img.save(ruta)
+    return send_file(ruta, mimetype='image/png')
 
-    return send_file(buffer, mimetype="image/png")
 
 
 # =========================
