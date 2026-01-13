@@ -1,8 +1,8 @@
 import qrcode
 
-url = "http://127.0.0.1:5000"
+url = "https://pedidos-qr-flask.onrender.com"  # URL público de tu app
 img = qrcode.make(url)
-img.save("qr_menu.png")
+img.save("static/qr_menu.png")  # guarda el QR
 
 print("QR generado")
 
