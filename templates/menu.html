@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Menú</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f2f2f2;
+            text-align: center;
+        }
+        .card {
+            background: white;
+            width: 320px;
+            margin: 40px auto;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 0 15px rgba(0,0,0,.15);
+        }
+        input, select, button {
+            width: 100%;
+            margin-top: 8px;
+            padding: 8px;
+        }
+        button {
+            background: #28a745;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+
+<div class="card">
+    <h2>🍔 Menú</h2>
+
+    <form method="POST" action="/pedido">
+        <input type="hidden" name="categoria" value="comida">
+
+        <label>Producto</label>
+        <input type="text" name="producto" required>
+
+        <label><input type="checkbox" name="opt_queso"> Queso</label><br>
+        <label><input type="checkbox" name="opt_tomate"> Tomate</label><br>
+
+        <label>Mayonesa</label>
+        <select name="mayo">
+            <option value="poca">Poca</option>
+            <option value="normal">Normal</option>
+            <option value="mucha">Mucha</option>
+        </select>
+
+        <button type="submit">Enviar pedido</button>
+    </form>
+</div>
+
+</body>
+</html>
