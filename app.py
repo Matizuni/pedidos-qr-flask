@@ -2,8 +2,8 @@ from flask import Flask, render_template, request, redirect, send_file
 from flask_sqlalchemy import SQLAlchemy
 import json
 import qrcode
+import io
 import os
-
 
 app = Flask(__name__)
 app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///database.db"
@@ -28,14 +28,13 @@ class Pedido(db.Model):
 def menu():
     return render_template("menu.html")
 
+
 @app.route("/pedido", methods=["POST"])
 def crear_pedido():
     opciones = {}
-
     for key in request.form:
         if key.startswith("opt_"):
             opciones[key.replace("opt_", "")] = True
-
     if "mayo" in request.form:
         opciones["mayo"] = request.form["mayo"]
 
@@ -44,38 +43,42 @@ def crear_pedido():
         producto=request.form["producto"],
         opciones=json.dumps(opciones, ensure_ascii=False)
     )
-
     db.session.add(nuevo)
     db.session.commit()
 
     return """
     <h2>Pedido enviado ✅</h2>
-    <a href="/">Volver</a>
+    <a href="/">Volver al menú</a>
     """
+
 
 @app.route("/admin")
 def admin():
     pedidos = Pedido.query.order_by(Pedido.id.desc()).all()
     return render_template("admin.html", pedidos=pedidos, json=json)
 
-@app.route("/qr")
+
+@app.route("/generar_qr")
 def generar_qr():
-    url = "http://192.168.101.11:5000"
+    """
+    Genera un QR dinámico en memoria con la URL pública
+    de tu app en Render y lo devuelve sin guardar en disco.
+    """
+    url = os.environ.get("PUBLIC_URL", "https://pedidos-qr-flask.onrender.com")
+    
+    qr_img = qrcode.make(url)
+    buffer = io.BytesIO()
+    qr_img.save(buffer, format="PNG")
+    buffer.seek(0)
 
-    # Ruta absoluta segura
-    carpeta = os.path.join(app.root_path, "static")
-    os.makedirs(carpeta, exist_ok=True)
-
-    ruta = os.path.join(carpeta, "qr_menu.png")
-
-    img = qrcode.make(url)
-    img.save(ruta)
-
-    return send_file(ruta, mimetype="image/png")
+    return send_file(buffer, mimetype="image/png")
 
 
 # =========================
 # INIT
 # =========================
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000)
+    with app.app_context():
+        db.create_all()
+    # Esto permite que sea accesible desde otros dispositivos en la red
+    app.run(host="0.0.0.0", port=5000, debug=True)
